@@ -75,7 +75,10 @@ func (c *Client) GetUserStats(email string) (int64, int64, error) {
 	if err == nil && downResp.Stat != nil {
 		downVal = downResp.Stat.Value
 	}
-	
+
+	return upVal, downVal, nil
+}
+
 // QueryAllStats fetches all available stats without filtering
 func (c *Client) QueryAllStats() ([]*statsService.Stat, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
