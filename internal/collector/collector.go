@@ -81,9 +81,10 @@ func (c *SingBoxCollector) Collect(ch chan<- prometheus.Metric) {
 
 	stats, err := c.client.QueryAllStats()
 	if err != nil {
-		log.Printf("Failed to scrape V2Ray stats: %v", err)
+		log.Printf("[Error] Failed to scrape V2Ray stats: %v", err)
 		success = 0.0
 	} else {
+		log.Printf("[Debug] Fetched %d stats from sing-box", len(stats))
 		// Process all stats
 		for _, s := range stats {
 			// Name format: type>>>id>>>...
