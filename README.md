@@ -71,8 +71,7 @@ And create `/etc/prometheus/sd/sing-box.yaml`:
 - targets:
     - '127.0.0.1:9091'
   labels:
-    instance: 'slomo-hk'
-    env: 'production'
+    instance: 'my-server-1'
 ```
 
 ## Multi-Target Configuration (Traditional)
