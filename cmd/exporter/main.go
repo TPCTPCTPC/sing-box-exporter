@@ -9,8 +9,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/yourusername/sing-box-exporter/internal/collector"
-	"github.com/yourusername/sing-box-exporter/internal/v2ray"
+	"github.com/TPCTPCTPC/sing-box-exporter/internal/collector"
+	"github.com/TPCTPCTPC/sing-box-exporter/internal/v2ray"
 )
 
 var (

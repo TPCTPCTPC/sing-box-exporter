@@ -1,4 +1,4 @@
-module github.com/yourusername/sing-box-exporter
+module github.com/TPCTPCTPC/sing-box-exporter
 
 go 1.21
 

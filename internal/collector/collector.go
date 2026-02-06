@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/yourusername/sing-box-exporter/internal/v2ray"
+	"github.com/TPCTPCTPC/sing-box-exporter/internal/v2ray"
 )
 
 const (
