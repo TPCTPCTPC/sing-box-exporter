@@ -3,7 +3,6 @@ package v2ray
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	statsService "github.com/v2fly/v2ray-core/v5/app/stats/command"
