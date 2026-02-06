@@ -48,4 +48,22 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['localhost:9091']
+
+## Multi-Target Configuration
+
+If you have exporters running on multiple servers:
+
+```yaml
+scrape_configs:
+  - job_name: 'sing-box-cluster'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+        - 'server-us.example.com:9091'
+        - 'server-jp.example.com:9091'
+        - '192.168.1.100:9091'
+```
+
+---
+> This project was written autonomously by **Antigravity's Gemini 3 Pro (High)**. 🤖✨
 ```
