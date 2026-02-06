@@ -76,35 +76,19 @@ func (c *Client) GetUserStats(email string) (int64, int64, error) {
 		downVal = downResp.Stat.Value
 	}
 	
-	// If both failed, we might want to return error, but often one might be missing if 0 traffic.
-	// We return what we found.
-	if err != nil && upResp == nil && downResp == nil {
-		return 0, 0, err 
-	}
-
-	return upVal, downVal, nil
-}
-
-// GetInboundStats returns uplink/downlink for a specific inbound tag
-func (c *Client) GetInboundStats(tag string) (int64, int64, error) {
+// QueryAllStats fetches all available stats without filtering
+func (c *Client) QueryAllStats() ([]*statsService.Stat, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
-	
-	// Pattern for inbound: "inbound>>>[tag]>>>traffic>>>uplink"
-	uplinkName := fmt.Sprintf("inbound>>>%s>>>traffic>>>uplink", tag)
-	downlinkName := fmt.Sprintf("inbound>>>%s>>>traffic>>>downlink", tag)
 
-	upResp, err := c.statsCli.GetStats(ctx, &statsService.GetStatsRequest{Name: uplinkName})
-	var upVal int64 = 0
-	if err == nil && upResp.Stat != nil {
-		upVal = upResp.Stat.Value
+	// Query with empty pattern to get everything
+	resp, err := c.statsCli.QueryStats(ctx, &statsService.QueryStatsRequest{
+		Pattern: "",
+		Reset_:  false,
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	downResp, err := c.statsCli.GetStats(ctx, &statsService.GetStatsRequest{Name: downlinkName})
-	var downVal int64 = 0
-	if err == nil && downResp.Stat != nil {
-		downVal = downResp.Stat.Value
-	}
-
-	return upVal, downVal, nil
+	return resp.Stat, nil
 }
+

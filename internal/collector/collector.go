@@ -2,7 +2,7 @@ package collector
 
 import (
 	"log"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -78,43 +78,59 @@ func (c *SingBoxCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *SingBoxCollector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	success := 1.0
-	
-	var wg sync.WaitGroup
-	
-	// Collect Inbound Stats
-	for _, inbound := range c.inbounds {
-		if inbound == "" { continue }
-		wg.Add(1)
-		go func(tag string) {
-			defer wg.Done()
-			up, down, err := c.client.GetInboundStats(tag)
-			if err != nil {
-				// We don't log every miss as it spams, but maybe we should log fatal errors?
-				// For now, silent fail on specific metrics is better than breaking the whole scrape
-			}
-			ch <- prometheus.MustNewConstMetric(c.upBytes, prometheus.CounterValue, float64(up), tag)
-			ch <- prometheus.MustNewConstMetric(c.downBytes, prometheus.CounterValue, float64(down), tag)
-		}(inbound)
-	}
 
-	// Collect User Stats
-	for _, user := range c.users {
-		if user == "" { continue }
-		wg.Add(1)
-		go func(email string) {
-			defer wg.Done()
-			up, down, err := c.client.GetUserStats(email)
-			if err != nil {
-				// Again, silent or debug log
+	stats, err := c.client.QueryAllStats()
+	if err != nil {
+		log.Printf("Failed to scrape V2Ray stats: %v", err)
+		success = 0.0
+	} else {
+		// Process all stats
+		for _, s := range stats {
+			// Name format: type>>>id>>>...
+			parts := strings.Split(s.Name, ">>>")
+			if len(parts) < 4 {
+				continue
 			}
-			ch <- prometheus.MustNewConstMetric(c.userUp, prometheus.CounterValue, float64(up), email)
-			ch <- prometheus.MustNewConstMetric(c.userDown, prometheus.CounterValue, float64(down), email)
-		}(user)
+			
+			// parts[0] = "user" or "inbound"
+			// parts[1] = identifier (email or tag)
+			// parts[2] = "traffic"
+			// parts[3] = "uplink" or "downlink"
+			
+			metricType := parts[0]
+			identifier := parts[1]
+			direction := parts[3]
+			
+			// Filter based on initial config if provided, otherwise allow all
+			// (If c.users is empty, we allow all users. Same for inbounds)
+			if metricType == "user" {
+				if len(c.users) > 0 && !contains(c.users, identifier) { continue }
+				
+				if direction == "uplink" {
+					ch <- prometheus.MustNewConstMetric(c.userUp, prometheus.CounterValue, float64(s.Value), identifier)
+				} else if direction == "downlink" {
+					ch <- prometheus.MustNewConstMetric(c.userDown, prometheus.CounterValue, float64(s.Value), identifier)
+				}
+			} else if metricType == "inbound" {
+				if len(c.inbounds) > 0 && !contains(c.inbounds, identifier) { continue }
+
+				if direction == "uplink" {
+					ch <- prometheus.MustNewConstMetric(c.upBytes, prometheus.CounterValue, float64(s.Value), identifier)
+				} else if direction == "downlink" {
+					ch <- prometheus.MustNewConstMetric(c.downBytes, prometheus.CounterValue, float64(s.Value), identifier)
+				}
+			}
+		}
 	}
-	
-	wg.Wait()
 	
 	duration := time.Since(start).Seconds()
 	ch <- prometheus.MustNewConstMetric(c.scrapeDur, prometheus.GaugeValue, duration)
 	ch <- prometheus.MustNewConstMetric(c.scrapeOk, prometheus.GaugeValue, success)
+}
+
+func contains(slice []string, item string) bool {
+    for _, s := range slice {
+        if s == item { return true }
+    }
+    return false
 }

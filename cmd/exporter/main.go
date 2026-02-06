@@ -24,16 +24,21 @@ var (
 func main() {
 	flag.Parse()
 
-	if *users == "" {
-		log.Println("Warning: No users specified to monitor. Use -users flag.")
+	var userList []string
+	if *users != "" {
+		userList = strings.Split(*users, ",")
+		for i := range userList { userList[i] = strings.TrimSpace(userList[i]) }
 	}
 
-	userList := strings.Split(*users, ",")
-	inboundList := strings.Split(*inbounds, ",")
-	
-	// Clean up lists
-	for i := range userList { userList[i] = strings.TrimSpace(userList[i]) }
-	for i := range inboundList { inboundList[i] = strings.TrimSpace(inboundList[i]) }
+	var inboundList []string
+	if *inbounds != "" {
+		inboundList = strings.Split(*inbounds, ",")
+		for i := range inboundList { inboundList[i] = strings.TrimSpace(inboundList[i]) }
+	}
+
+	if len(userList) == 0 && len(inboundList) == 0 {
+		log.Println("No specific filters provided. Monitoring ALL users and inbounds found in Sing-box (Auto-discovery).")
+	}
 
 	// Initialize V2Ray Client
 	vClient, err := v2ray.NewClient(*sbAddr, 10*time.Second)
