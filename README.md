@@ -29,14 +29,11 @@ Ensure your `config.json` has:
 ```bash
 ./sing-box-exporter \
   -singbox 127.0.0.1:19998 \
-  -users "user1,user2,myself" \
-  -inbounds "main,relay"
+  -users "user1,user2" \
+  -inbounds "inbound-1,inbound-2"
 ```
 
 ### 3. Check Metrics
 ```bash
 curl localhost:9091/metrics
 ```
-
-## Grafana Dashboard
-(Coming Soon)
