@@ -37,3 +37,15 @@ Ensure your `config.json` has:
 ```bash
 curl localhost:9091/metrics
 ```
+
+## Prometheus Configuration
+
+Add this to your `prometheus.yml`:
+
+```yaml
+scrape_configs:
+  - job_name: 'sing-box'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9091']
+```
