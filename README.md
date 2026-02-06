@@ -37,7 +37,7 @@ Ensure your `config.json` has:
 
 ### 3. Check Metrics
 ```bash
-curl localhost:9091/metrics
+curl localhost:9091/traffic
 ```
 
 ## Prometheus Configuration
@@ -48,6 +48,7 @@ curl localhost:9091/metrics
 scrape_configs:
   - job_name: 'sing-box'
     scrape_interval: 15s
+    metrics_path: '/traffic'
     static_configs:
       - targets: ['localhost:9091']
 ```
@@ -60,6 +61,7 @@ If you use `file_sd_configs`, add this to your `prometheus.yml`:
 scrape_configs:
   - job_name: 'sing-box-auto'
     scrape_interval: 15s
+    metrics_path: '/traffic'
     file_sd_configs:
       - files:
           - '/etc/prometheus/sd/sing-box.yaml'

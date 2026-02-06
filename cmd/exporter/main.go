@@ -18,7 +18,7 @@ var (
 	sbAddr      = flag.String("singbox", "127.0.0.1:19998", "Address of the sing-box V2Ray stats API.")
 	users       = flag.String("users", "", "Comma-separated list of users to monitor (e.g. 'user1,user2').")
 	inbounds    = flag.String("inbounds", "main,relay,route", "Comma-separated list of inbounds to monitor.")
-	metricsPath = flag.String("telemetry-path", "/metrics", "Path under which to expose metrics.")
+	metricsPath = flag.String("telemetry-path", "/traffic", "Path under which to expose metrics.")
 )
 
 func main() {
