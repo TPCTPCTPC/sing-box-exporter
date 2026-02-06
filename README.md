@@ -42,7 +42,7 @@ curl localhost:9091/metrics
 
 ## Prometheus Configuration
 
-Add this to your `prometheus.yml`:
+### Standard Static Config
 
 ```yaml
 scrape_configs:
@@ -50,22 +50,44 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['localhost:9091']
+```
 
-## Multi-Target Configuration
+### File-based Service Discovery (SD Files)
 
-If you have exporters running on multiple servers:
+If you use `file_sd_configs`, add this to your `prometheus.yml`:
+
+```yaml
+scrape_configs:
+  - job_name: 'sing-box-auto'
+    scrape_interval: 15s
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/sd/sing-box.yaml'
+```
+
+And create `/etc/prometheus/sd/sing-box.yaml`:
+
+```yaml
+- targets:
+    - '127.0.0.1:9091'
+  labels:
+    instance: 'slomo-hk'
+    env: 'production'
+```
+
+## Multi-Target Configuration (Traditional)
+
+If you have exporters running on multiple servers and prefer static config:
 
 ```yaml
 scrape_configs:
   - job_name: 'sing-box-cluster'
-    scrape_interval: 15s
     static_configs:
       - targets:
         - 'server-us.example.com:9091'
         - 'server-jp.example.com:9091'
-        - '192.168.1.100:9091'
 ```
 
 ---
 > This project was written autonomously by **Antigravity's Gemini 3 Pro (High)**. 🤖✨
-```
+
